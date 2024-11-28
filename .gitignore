@@ -3,7 +3,8 @@
 **/build/
 **/dist/
 
-.env
+.venv/
+venv/
 *.env
 
 *~
