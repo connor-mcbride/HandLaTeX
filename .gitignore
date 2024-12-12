@@ -6,6 +6,8 @@ node_modules/
 **/dist/
 
 /backend/.venv/
+/backend/training_data/
+/backend/data_manipulation/db_config.json
 **/.venv/
 *.env
 

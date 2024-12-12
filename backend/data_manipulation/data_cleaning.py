@@ -98,6 +98,3 @@ def normalize_data(input_file='strokes.csv', output_file='normalized_strokes.csv
     with open(output_file, 'w', newline='') as file:
         csvwriter = csv.writer(file)
         csvwriter.writerows(cleaned_rows)
-
-if __name__ == '__main__':
-    normalize_data()
