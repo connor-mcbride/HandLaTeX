@@ -5,7 +5,7 @@ class StrokeLSTMClassifier(nn.Module):
     def __init__(self, input_size=3, hidden_size=128, num_layers=2, num_classes=10, dropout=0.3, bidirectional=True):
         """
         Args:
-            input_size (int): Number of input features per time step (e.g., 2 for x and y).
+            input_size (int): Number of input features per time step.
             hidden_size (int): Number of features in the hidden state.
             num_layers (int): Number of recurrent layers.
             num_classes (int): Number of output classes.

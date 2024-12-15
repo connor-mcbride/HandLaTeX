@@ -8,6 +8,7 @@ node_modules/
 /backend/.venv/
 /backend/training_data/
 /backend/data_manipulation/db_config.json
+/backend/latex_file/
 **/.venv/
 *.env
 

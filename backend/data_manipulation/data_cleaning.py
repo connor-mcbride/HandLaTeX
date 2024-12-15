@@ -98,3 +98,40 @@ def normalize_data(input_file='strokes.csv', output_file='normalized_strokes.csv
     with open(output_file, 'w', newline='') as file:
         csvwriter = csv.writer(file)
         csvwriter.writerows(cleaned_rows)
+
+
+def create_symbol_map(input_file='symbols.json', output_file='latex_conversion.json'):
+    """Create a JSON file mapping unique keys to their corresponding strokes."""
+    with open(input_file, 'r') as file:
+        data = json.load(file)
+
+    symbol_map = {}
+
+    for symbol in data:
+        command = symbol['command']
+        mathmode = symbol['mathmode']
+        textmode = symbol['textmode']
+        symbol_id = symbol['id']
+        css_class = symbol['css_class']
+
+        symbol_data = {
+            'command': command,
+            'mathmode': mathmode,
+            'textmode': textmode,
+            'css_class': css_class
+        }
+
+        if 'package' in symbol:
+            symbol_data |= {
+                'package': symbol['package']
+            }
+
+        if 'fontenc' in symbol:
+            symbol_data |= {
+                'fontenc': symbol['fontenc']
+            }
+
+        symbol_map[symbol_id] = symbol_data
+
+    with open(output_file, 'w') as json_file:
+        json.dump(symbol_map, json_file, indent=4)

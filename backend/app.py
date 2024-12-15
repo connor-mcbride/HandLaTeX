@@ -2,15 +2,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import torch
 import torch.nn as nn
+import json
 from torch.nn.utils.rnn import pad_sequence
 from training.stroke_classifier import StrokeLSTMClassifier
+from latex_generator import LatexGenerator
 
 app = Flask(__name__)
 CORS(app)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-num_classes = 1098
 
+# Load label mapping from JSON file
+with open('training_data/label_mapping.json', 'r') as f:
+    label_mapping = json.load(f)
+
+num_classes = len(label_mapping)
 model = StrokeLSTMClassifier(
     input_size=3,
     hidden_size=128,
@@ -19,6 +25,8 @@ model = StrokeLSTMClassifier(
     dropout=0.3,
     bidirectional=True
 ).to(device)
+
+latex = LatexGenerator()
 
 # Load trained model
 model.load_state_dict(torch.load('training/lstm_model.pth', map_location=device, weights_only=True))
@@ -33,7 +41,7 @@ def preprocess_input(stroke_sequences):
     ]
 
     normalized_strokes = []
-    for i, stroke in enumerate(strokes):
+    for stroke in strokes:
         # Clone the tensor to avoid in-place modification issues
         stroke = stroke.clone()
 
@@ -74,8 +82,9 @@ def predict(stroke_sequences):
     with torch.no_grad():
         outputs = model(inputs)
         _, predicted = torch.max(outputs, 1)
+        predicted_labels = [label_mapping[str(label.item())] for label in predicted]
 
-    return predicted.cpu().numpy().tolist()
+    return predicted_labels
 
 
 @app.route('/api/strokes', methods=['POST'])
@@ -85,14 +94,13 @@ def receive_strokes():
         return jsonify({'error': 'No stroke data provided'}), 400
 
     stroke_sequences = data['strokes']
-    print("Received Strokes:", stroke_sequences)
 
     if not isinstance(stroke_sequences, list) or not all(isinstance(seq, list) for seq in stroke_sequences):
         return jsonify({'error': 'Invalid stroke data format.'}), 400
 
     try:
         predictions = predict(stroke_sequences)
-        print(predictions)
+        latex.add_symbols(predictions)
         return jsonify({'predictions': stroke_sequences}), 500
     except Exception as e:
         pass
